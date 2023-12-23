@@ -5,7 +5,7 @@ Proof of concept scheduling app using Go, HTMX and Tailwind. The goal was to mak
 
 - Start the Application:
   ```bash
-  go run main.go
+  go run .
   ```
   then go to localhost:8080/schedule
   Events can be added or delted by hitting enter
