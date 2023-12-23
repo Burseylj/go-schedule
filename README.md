@@ -17,6 +17,6 @@ Proof of concept scheduling app using Go, HTMX and Tailwind. The goal was to mak
 
 ## Next steps
 This is fairly rudimentary. I've learned that Go's templating library is not ideal for building this kind of app (interpolation is awkward). If I go much further I would probably rewrite with a more robust templating system. Grouping rows by employee team, sorting, adding collapsable and expandable rows, adding vaildation on submit are the tough features
- - sorting would probably be done with either a full page reload, or at least a partial reload targeting the whole calendar. This is where Go's template fragments become frustrating because passing inputs between nested templates is not as comfortable, declarative or typesafe as I would like
+ - Sorting would probably be done with either a full page reload, or at least a partial reload targeting the whole calendar. This is where Go's template fragments become frustrating because passing inputs between nested templates is not as comfortable, declarative or typesafe as I would like
  - Collapsable rows would require a bit of JS, alpineJS seemed like a good fit for this project
  - HTMX has a system for vaildation but I'd want to use custom modals, or maybe a toast indicator.
