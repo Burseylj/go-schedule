@@ -7,7 +7,10 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.3
 )
 
-require github.com/Masterminds/semver v1.5.0 // indirect
+require (
+	github.com/Masterminds/semver v1.5.0 // indirect
+	github.com/a-h/templ v0.2.501 // indirect
+)
 
 require (
 	github.com/Masterminds/goutils v1.1.1 // indirect

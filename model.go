@@ -11,6 +11,7 @@ type Employee struct {
 	Team string
 }
 
+// put this into it's own package or something to protect access
 type Schedule map[string]string
 
 func (s Schedule) Update(empID int, date civil.Date, event string) {

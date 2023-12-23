@@ -1,0 +1,94 @@
+package main
+
+import (
+	"cloud.google.com/go/civil"
+	"net/url"
+	"strconv"
+)
+
+templ schedule(employees []Employee, dates []civil.Date, schedule  Schedule) {
+	<html>
+		<head>
+			<title>Employee Schedule</title>
+			<script src="https://cdn.tailwindcss.com"></script>
+			<script src="https://unpkg.com/htmx.org"></script>
+			<script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
+		</head>
+		<style>
+            @keyframes slide {
+                from {
+                    transform: translateX(0);
+                }
+
+                to {
+                    transform: translateX(100px);
+                }
+            }
+
+            .animated-box {
+                width: 50px;
+                height: 50px;
+                background-color: blue;
+                animation: slide 2s infinite alternate;
+            }
+        </style>
+		<body>
+			<table class="table-auto w-full border-collapse">
+				<tr class="bg-gray-100">
+					<th class="border px-4 py-2">Employee</th>
+					for _, date := range dates {
+						<th class="border px-4 py-2">{ date.String() }</th>
+					}
+				</tr>
+				for _, employee := range employees {
+					<tr>
+						<td class="border px-4 py-2">{ employee.Name }</td>
+						for _, date := range dates {
+							<td class="border px-4 py-2">
+								@cellContents(employee.ID, date, schedule.Get(employee.ID, date))
+							</td>
+						}
+					</tr>
+				}
+			</table>
+			@animationBox()
+		</body>
+	</html>
+}
+
+templ animationBox() {
+	<div class="animated-box"></div>
+	<p>take the above animation as proof that the page has not reloaded</p>
+}
+
+templ cellContents(empId int,  date civil.Date, content string) {
+	if content != "" {
+		<!-- Cell with content -->
+		<div tabindex="0" 
+			class="focus:outline-none focus:bg-blue-100 px-4 py-2 border"
+			hx-delete={getCellUrl(empId, date)}
+			hx-trigger="keyup[keyCode==13]" 
+			hx-target="this"
+			hx-swap="outerHTML">
+				{content}
+		</div>
+	} else {
+		<!-- Empty cell with input -->
+		<input type="text" class="w-full bg-red-200 px-4 py-2" 
+			hx-put={getCellUrl(empId, date)}
+			hx-trigger="keyup[keyCode==13]"
+			hx-target="this" 
+			hx-swap="outerHTML"
+			name="event" 
+			placeholder="Enter event..."
+			onblur="this.value=''"/>
+	}
+}
+
+func getCellUrl(empId int, date civil.Date) string {
+    // Sanitize empId and date
+    empIdStr := url.PathEscape(strconv.Itoa(empId))
+    dateStr := url.PathEscape(date.String())
+
+    return "/schedule/cell?empID=" + empIdStr + "&date=" + dateStr
+}
