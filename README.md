@@ -1,6 +1,8 @@
 # go-schedule
 Proof of concept scheduling app using Go, HTMX and Tailwind. The goal was to make this skeleton of a scheduling app work with a traditional server rendered architecture, using HTMX to partially reload parts of the app.
 
+https://github.com/Burseylj/go-schedule/assets/24847234/18bcaec9-8626-47fd-9bd8-a81a73587c30
+
 ## Running Locally
 
 - Start the Application:
@@ -20,3 +22,7 @@ This is fairly rudimentary. I've learned that Go's templating library is not ide
  - Sorting would probably be done with either a full page reload, or at least a partial reload targeting the whole calendar. This is where Go's template fragments become frustrating because passing inputs between nested templates is not as comfortable, declarative or typesafe as I would like
  - Collapsable rows would require a bit of JS, alpineJS seemed like a good fit for this project
  - HTMX has a system for vaildation but I'd want to use custom modals, or maybe a toast indicator.
+
+
+
+
