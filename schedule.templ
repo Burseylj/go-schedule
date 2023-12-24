@@ -6,13 +6,14 @@ import (
 	"strconv"
 )
 
-templ schedule(employees []Employee, dates []civil.Date, schedule  Schedule) {
+templ schedule(groups map[string][]Employee, dates []civil.Date, schedule Schedule) {
 	<html>
 		<head>
 			<title>Employee Schedule</title>
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script src="https://unpkg.com/htmx.org"></script>
 			<script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
+			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
 		</head>
 		<style>
             @keyframes slide {
@@ -40,20 +41,44 @@ templ schedule(employees []Employee, dates []civil.Date, schedule  Schedule) {
 						<th class="border px-4 py-2">{ date.String() }</th>
 					}
 				</tr>
-				for _, employee := range employees {
-					<tr>
-						<td class="border px-4 py-2">{ employee.Name }</td>
-						for _, date := range dates {
-							<td class="border px-4 py-2">
-								@cellContents(employee.ID, date, schedule.Get(employee.ID, date))
-							</td>
-						}
-					</tr>
+				for groupName, employees := range groups {
+					@groupRow(groupName, employees, dates, schedule)
 				}
 			</table>
 			@animationBox()
 		</body>
+		<script>
+		function toggleAllSubRows(groupId) {
+			var header = document.querySelector(`tr[data-group-id="${groupId}"]`);
+			var subRows = document.querySelectorAll(`tr[data-parent-id="${groupId}"]`);
+
+			subRows.forEach(function(row) {
+				row.classList.toggle('collapse'); 
+			});
+			header.classList.toggle('bg-gray-200'); 
+			header.classList.toggle('bg-gray-500'); 
+		}
+		</script>
 	</html>
+}
+
+templ groupRow(groupName string, employees []Employee, dates []civil.Date, schedule Schedule) {
+	<tr class="header bg-gray-200 cursor-pointer" data-group-id={groupName} _={"on click toggleAllSubRows('"+ groupName + "')"}>
+		<td class="border px-4 py-2">{ groupName }</td>
+		for range dates {
+			<td class="border px-4 py-2"></td>
+		}
+	</tr>
+	for _, employee := range employees {
+		<tr data-parent-id={ groupName }>
+			<td class="border px-4 py-2">{ employee.Name }</td>
+			for _, date := range dates {
+				<td class="border px-4 py-2">
+					@cellContents(employee.ID, date, schedule.Get(employee.ID, date))
+				</td>
+			}
+		</tr>
+	}
 }
 
 templ animationBox() {
@@ -64,31 +89,36 @@ templ animationBox() {
 templ cellContents(empId int,  date civil.Date, content string) {
 	if content != "" {
 		<!-- Cell with content -->
-		<div tabindex="0" 
+		<div
+			tabindex="0"
 			class="focus:outline-none focus:bg-blue-100 px-4 py-2 border"
-			hx-delete={getCellUrl(empId, date)}
-			hx-trigger="keyup[keyCode==13]" 
+			hx-delete={ getCellUrl(empId, date) }
+			hx-trigger="keyup[keyCode==13]"
 			hx-target="this"
-			hx-swap="outerHTML">
-				{content}
+			hx-swap="outerHTML"
+		>
+			{ content }
 		</div>
 	} else {
 		<!-- Empty cell with input -->
-		<input type="text" class="w-full bg-red-200 px-4 py-2" 
-			hx-put={getCellUrl(empId, date)}
+		<input
+			type="text"
+			class="w-full bg-red-200 px-4 py-2"
+			hx-put={ getCellUrl(empId, date) }
 			hx-trigger="keyup[keyCode==13]"
-			hx-target="this" 
+			hx-target="this"
 			hx-swap="outerHTML"
-			name="event" 
+			name="event"
 			placeholder="Enter event..."
-			onblur="this.value=''"/>
+			onblur="this.value=''"
+		/>
 	}
 }
 
 func getCellUrl(empId int, date civil.Date) string {
-    // Sanitize empId and date
-    empIdStr := url.PathEscape(strconv.Itoa(empId))
-    dateStr := url.PathEscape(date.String())
+	// Sanitize empId and date
+	empIdStr := url.PathEscape(strconv.Itoa(empId))
+	dateStr := url.PathEscape(date.String())
 
-    return "/schedule/cell?empID=" + empIdStr + "&date=" + dateStr
+	return "/schedule/cell?empID=" + empIdStr + "&date=" + dateStr
 }
