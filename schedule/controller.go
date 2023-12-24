@@ -1,26 +1,23 @@
-package main
+package schedule
 
 import (
-	"html/template"
+	"cloud.google.com/go/civil"
+	"go-schedule/model"
 	"log"
 	"net/http"
 	"strconv"
-	"cloud.google.com/go/civil"
 )
 
-
-var scheduleTemplate *template.Template
-
-//init test data, will be db service eventually
-var employees = []Employee{
-	{1, "Alice Smith", "TeamA"},
-	{2, "Bob Johnson", "TeamB"},
-	{3, "Charlie Brown", "TeamA"},
-	{4, "Diana Davis", "TeamB"},
-	{5, "Edward Wilson", "TeamA"},
-	{6, "Frank Thompson", "TeamA"},
-	{7, "Grace Martinez", "TeamB"},
-	{8, "Henry Anderson", "TeamA"},
+// init test data, will be db service eventually
+var employees = []model.Employee{
+	{ID: 1, Name: "Alice Smith", Team: "TeamA"},
+	{ID: 2, Name: "Bob Johnson", Team: "TeamB"},
+	{ID: 3, Name: "Charlie Brown", Team: "TeamA"},
+	{ID: 4, Name: "Diana Davis", Team: "TeamB"},
+	{ID: 5, Name: "Edward Wilson", Team: "TeamA"},
+	{ID: 6, Name: "Frank Thompson", Team: "TeamA"},
+	{ID: 7, Name: "Grace Martinez", Team: "TeamB"},
+	{ID: 8, Name: "Henry Anderson", Team: "TeamA"},
 }
 
 var dates = []civil.Date{
@@ -31,18 +28,19 @@ var dates = []civil.Date{
 	{Year: 2023, Month: 1, Day: 5},
 }
 
-var employeeSchedule = Schedule{
-	"1:2023-01-01": "Day",
-	"4:2023-01-05": "Eve",
+var employeeSchedule = model.NewSchedule()
+
+func init() {
+	employeeSchedule.Set(1, dates[0], "Vacation")
+	employeeSchedule.Set(2, dates[1], "Day")
 }
 
 func httpError(w http.ResponseWriter, error string, code int) {
-    log.Println(error)
-    http.Error(w, error, code)
+	log.Println(error)
+	http.Error(w, error, code)
 }
 
-
-func scheduleHandler(w http.ResponseWriter, r *http.Request) {
+func ScheduleHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		httpError(w, "Only GET method is allowed", http.StatusMethodNotAllowed)
 		return
@@ -50,14 +48,14 @@ func scheduleHandler(w http.ResponseWriter, r *http.Request) {
 
 	group := groupByTeam(employees)
 
-	err := schedule(group, dates, employeeSchedule).Render(r.Context(), w)
+	err := scheduleTemplate(group, dates, employeeSchedule).Render(r.Context(), w)
 	if err != nil {
 		httpError(w, "Error executing template: %v", http.StatusBadRequest)
 	}
 }
 
-func groupByTeam(employees []Employee) map[string][]Employee {
-	groups := make(map[string][]Employee)
+func groupByTeam(employees []model.Employee) map[string][]model.Employee {
+	groups := make(map[string][]model.Employee)
 	for _, emp := range employees {
 		groups[emp.Team] = append(groups[emp.Team], emp)
 	}
@@ -68,7 +66,7 @@ func parseEmpID(w http.ResponseWriter, r *http.Request) (int, error) {
 	param := r.URL.Query().Get("empID")
 	parsed, err := strconv.Atoi(param)
 	if err != nil {
-		httpError(w, "Error parsing "+param, http.StatusBadRequest)
+		httpError(w, "Error parsing empID"+param, http.StatusBadRequest)
 		return 0, err
 	}
 	return parsed, nil
@@ -78,13 +76,13 @@ func parseDate(w http.ResponseWriter, r *http.Request) (civil.Date, error) {
 	param := r.URL.Query().Get("date")
 	parsed, err := civil.ParseDate(param)
 	if err != nil {
-		httpError(w, "Error parsing "+param, http.StatusBadRequest)
+		httpError(w, "Error parsing Date"+param, http.StatusBadRequest)
 		return civil.Date{}, err
 	}
 	return parsed, nil
 }
 
-func scheduleCellHandler(w http.ResponseWriter, r *http.Request) {
+func ScheduleCellHandler(w http.ResponseWriter, r *http.Request) {
 	empID, err := parseEmpID(w, r)
 	if err != nil {
 		return
@@ -97,7 +95,7 @@ func scheduleCellHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "PUT":
 		cellContent := r.FormValue("event")
-		employeeSchedule.Update(empID, date, cellContent)
+		employeeSchedule.Set(empID, date, cellContent)
 		renderCellContent(w, r, empID, date, cellContent)
 
 	case "DELETE":
@@ -105,7 +103,7 @@ func scheduleCellHandler(w http.ResponseWriter, r *http.Request) {
 		renderCellContent(w, r, empID, date, "")
 
 	default:
-		httpError(w, "Only PUT and DELETE methods are allowed", http.StatusMethodNotAllowed)	
+		httpError(w, "Only PUT and DELETE methods are allowed", http.StatusMethodNotAllowed)
 	}
 }
 

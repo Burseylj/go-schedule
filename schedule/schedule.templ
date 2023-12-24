@@ -1,12 +1,13 @@
-package main
+package schedule
 
 import (
 	"cloud.google.com/go/civil"
 	"net/url"
 	"strconv"
+	"go-schedule/model"
 )
 
-templ schedule(groups map[string][]Employee, dates []civil.Date, schedule Schedule) {
+templ scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, schedule model.Schedule) {
 	<html>
 		<head>
 			<title>Employee Schedule</title>
@@ -62,7 +63,7 @@ templ schedule(groups map[string][]Employee, dates []civil.Date, schedule Schedu
 	</html>
 }
 
-templ groupRow(groupName string, employees []Employee, dates []civil.Date, schedule Schedule) {
+templ groupRow(groupName string, employees []model.Employee, dates []civil.Date, schedule model.Schedule) {
 	<tr class="header bg-gray-200 cursor-pointer" data-group-id={groupName} _={"on click toggleAllSubRows('"+ groupName + "')"}>
 		<td class="border px-4 py-2">{ groupName }</td>
 		for range dates {
