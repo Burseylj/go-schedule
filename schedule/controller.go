@@ -50,7 +50,7 @@ func ScheduleHandler(w http.ResponseWriter, r *http.Request) {
 
 	err := scheduleTemplate(group, dates, employeeSchedule).Render(r.Context(), w)
 	if err != nil {
-		httpError(w, "Error executing template: %v", http.StatusBadRequest)
+		httpError(w, "Error executing template: %v", http.StatusInternalServerError)
 	}
 }
 
@@ -66,7 +66,7 @@ func parseEmpID(w http.ResponseWriter, r *http.Request) (int, error) {
 	param := r.URL.Query().Get("empID")
 	parsed, err := strconv.Atoi(param)
 	if err != nil {
-		httpError(w, "Error parsing empID"+param, http.StatusBadRequest)
+		httpError(w, "Error parsing empID" + param, http.StatusBadRequest)
 		return 0, err
 	}
 	return parsed, nil
@@ -76,7 +76,7 @@ func parseDate(w http.ResponseWriter, r *http.Request) (civil.Date, error) {
 	param := r.URL.Query().Get("date")
 	parsed, err := civil.ParseDate(param)
 	if err != nil {
-		httpError(w, "Error parsing Date"+param, http.StatusBadRequest)
+		httpError(w, "Error parsing Date" + param, http.StatusBadRequest)
 		return civil.Date{}, err
 	}
 	return parsed, nil
@@ -111,6 +111,5 @@ func renderCellContent(w http.ResponseWriter, r *http.Request, empID int, date c
 	err := cellContents(empID, date, content).Render(r.Context(), w)
 	if err != nil {
 		httpError(w, "Error rendering cell", http.StatusInternalServerError)
-		log.Printf("Error rendering cell: %v", err)
 	}
 }
