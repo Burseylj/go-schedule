@@ -1,39 +1,21 @@
 package schedule
 
 import (
-	"cloud.google.com/go/civil"
-	"net/url"
-	"strconv"
-	"go-schedule/model"
+    "cloud.google.com/go/civil"
+    "net/url"
+    "strconv"
+    "go-schedule/model"
 )
 
 templ scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, schedule model.Schedule) {
 	<html>
 		<head>
 			<title>Employee Schedule</title>
+			<!-- I don't want to work out building tailwind (not really ideal to use the cdn-->
 			<script src="https://cdn.tailwindcss.com"></script>
 			<script src="https://unpkg.com/htmx.org"></script>
 			<script src="https://unpkg.com/htmx.org/dist/ext/debug.js"></script>
-			<script src="https://unpkg.com/hyperscript.org@0.9.12"></script>
 		</head>
-		<style>
-            @keyframes slide {
-                from {
-                    transform: translateX(0);
-                }
-
-                to {
-                    transform: translateX(100px);
-                }
-            }
-
-            .animated-box {
-                width: 50px;
-                height: 50px;
-                background-color: blue;
-                animation: slide 2s infinite alternate;
-            }
-        </style>
 		<body>
 			<table class="table-auto w-full border-collapse">
 				<tr class="bg-gray-100">
@@ -47,24 +29,14 @@ templ scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, s
 				}
 			</table>
 			@animationBox()
-		</body>
-		<script>
-		function toggleAllSubRows(groupId) {
-			var header = document.querySelector(`tr[data-group-id="${groupId}"]`);
-			var subRows = document.querySelectorAll(`tr[data-parent-id="${groupId}"]`);
-
-			subRows.forEach(function(row) {
-				row.classList.toggle('collapse'); 
-			});
-			header.classList.toggle('bg-gray-200'); 
-			header.classList.toggle('bg-gray-500'); 
-		}
-		</script>
+		</body>	
 	</html>
 }
 
 templ groupRow(groupName string, employees []model.Employee, dates []civil.Date, schedule model.Schedule) {
-	<tr class="header bg-gray-200 cursor-pointer" data-group-id={groupName} _={"on click toggleAllSubRows('"+ groupName + "')"}>
+	<tr class="header bg-gray-200 cursor-pointer" 
+		onclick="toggleAllSubRows(this)"
+		data-group-id={groupName}>
 		<td class="border px-4 py-2">{ groupName }</td>
 		for range dates {
 			<td class="border px-4 py-2"></td>
@@ -80,11 +52,42 @@ templ groupRow(groupName string, employees []model.Employee, dates []civil.Date,
 			}
 		</tr>
 	}
+	<script>
+		function toggleAllSubRows(header) {
+			const groupId = header.dataset.groupId;
+			const subRows = document.querySelectorAll(`tr[data-parent-id="${groupId}"]`);
+
+			subRows.forEach(row => {
+				row.classList.toggle('collapse'); 
+			});
+
+			header.classList.toggle('bg-gray-200'); 
+			header.classList.toggle('bg-gray-500'); 
+		}
+		</script>
 }
 
 templ animationBox() {
 	<div class="animated-box"></div>
 	<p>take the above animation as proof that the page has not reloaded</p>
+	<style>
+		@keyframes slide {
+			from {
+				transform: translateX(0);
+			}
+
+			to {
+				transform: translateX(100px);
+			}
+		}
+
+		.animated-box {
+			width: 50px;
+			height: 50px;
+			background-color: blue;
+			animation: slide 2s infinite alternate;
+		}
+    </style>
 }
 
 templ cellContents(empId int,  date civil.Date, content string) {
