@@ -12,12 +12,11 @@ import "bytes"
 
 import (
 	"cloud.google.com/go/civil"
-	"go-schedule/model"
 	"net/url"
 	"strconv"
 )
 
-func scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, schedule model.Schedule) templ.Component {
+func scheduleTemplate(groups map[string][]Employee, dates []civil.Date, schedule Store) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -96,7 +95,7 @@ func scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, sc
 			var templ_7745c5c3_Var8 string
 			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(date.String())
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 23, Col: 50}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 22, Col: 50}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 			if templ_7745c5c3_Err != nil {
@@ -136,7 +135,7 @@ func scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, sc
 	})
 }
 
-func groupRow(groupName string, employees []model.Employee, dates []civil.Date, schedule model.Schedule) templ.Component {
+func groupRow(groupName string, employees []Employee, dates []civil.Date, schedule Store) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
 		if !templ_7745c5c3_IsBuffer {
@@ -164,7 +163,7 @@ func groupRow(groupName string, employees []model.Employee, dates []civil.Date, 
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(groupName)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 39, Col: 42}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 38, Col: 42}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -200,7 +199,7 @@ func groupRow(groupName string, employees []model.Employee, dates []civil.Date, 
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(employee.Name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 46, Col: 47}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 45, Col: 47}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -358,7 +357,7 @@ func cellContents(empId int, date civil.Date, content string) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(content)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 103, Col: 12}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `schedule\schedule.templ`, Line: 102, Col: 12}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {

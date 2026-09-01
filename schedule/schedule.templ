@@ -4,10 +4,9 @@ import (
     "cloud.google.com/go/civil"
     "net/url"
     "strconv"
-    "go-schedule/model"
 )
 
-templ scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, schedule model.Schedule) {
+templ scheduleTemplate(groups map[string][]Employee, dates []civil.Date, schedule Store) {
 	<html>
 		<head>
 			<title>Employee Schedule</title>
@@ -33,7 +32,7 @@ templ scheduleTemplate(groups map[string][]model.Employee, dates []civil.Date, s
 	</html>
 }
 
-templ groupRow(groupName string, employees []model.Employee, dates []civil.Date, schedule model.Schedule) {
+templ groupRow(groupName string, employees []Employee, dates []civil.Date, schedule Store) {
 	<tr class="header bg-gray-200 cursor-pointer" 
 		onclick="toggleAllSubRows(this)"
 		data-group-id={groupName}>
